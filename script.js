@@ -1,7 +1,4 @@
-//your JS code here.
-
-// Do not change code below this line
-// This code will just display the questions to the screen
+// Array of questions
 const questions = [
   {
     question: "What is the capital of France?",
@@ -30,13 +27,23 @@ const questions = [
   },
 ];
 
-// Display the quiz questions and choices
+// Retrieve or initialize userAnswers from sessionStorage
+const userAnswers = JSON.parse(sessionStorage.getItem('userAnswers')) || [];
+
+// Render the quiz questions and choices
 function renderQuestions() {
+  const questionsElement = document.getElementById("questions");
+  questionsElement.innerHTML = ''; // Clear previous questions
+
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
     const questionElement = document.createElement("div");
-    const questionText = document.createTextNode(question.question);
+    questionElement.classList.add('question');
+
+    const questionText = document.createElement("p");
+    questionText.textContent = question.question;
     questionElement.appendChild(questionText);
+
     for (let j = 0; j < question.choices.length; j++) {
       const choice = question.choices[j];
       const choiceElement = document.createElement("input");
@@ -44,13 +51,55 @@ function renderQuestions() {
       choiceElement.setAttribute("name", `question-${i}`);
       choiceElement.setAttribute("value", choice);
       if (userAnswers[i] === choice) {
-        choiceElement.setAttribute("checked", true);
+        choiceElement.checked = true;
       }
-      const choiceText = document.createTextNode(choice);
-      questionElement.appendChild(choiceElement);
-      questionElement.appendChild(choiceText);
+
+      const choiceLabel = document.createElement("label");
+      choiceLabel.appendChild(choiceElement);
+      choiceLabel.appendChild(document.createTextNode(choice));
+      questionElement.appendChild(choiceLabel);
     }
+
     questionsElement.appendChild(questionElement);
   }
 }
+
+// Save the user’s answers to sessionStorage
+function saveUserAnswers() {
+  const answers = [];
+  for (let i = 0; i < questions.length; i++) {
+    const selectedOption = document.querySelector(`input[name="question-${i}"]:checked`);
+    if (selectedOption) {
+      answers[i] = selectedOption.value;
+    } else {
+      answers[i] = null;
+    }
+  }
+  sessionStorage.setItem('userAnswers', JSON.stringify(answers));
+}
+
+// Calculate the user's score
+function calculateScore() {
+  let score = 0;
+  for (let i = 0; i < questions.length; i++) {
+    const selectedAnswer = userAnswers[i];
+    if (selectedAnswer === questions[i].answer) {
+      score++;
+    }
+  }
+  return score;
+}
+
+// Handle the submit button click event
+function handleSubmit() {
+  saveUserAnswers();
+  const score = calculateScore();
+  document.getElementById('score').textContent = `Your score is ${score} out of ${questions.length}.`;
+  localStorage.setItem('score', score);
+}
+
+// Add event listener for submit button
+document.getElementById('submit').addEventListener('click', handleSubmit);
+
+// Initial render of questions
 renderQuestions();
