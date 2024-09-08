@@ -75,14 +75,14 @@ function saveUserAnswers() {
       answers[i] = null;
     }
   }
-  sessionStorage.setItem('userAnswers', JSON.stringify(answers));
+  sessionStorage.setItem('saveUserAnswers', JSON.stringify(answers));
 }
 
 // Calculate the user's score
 function calculateScore() {
   let score = 0;
   for (let i = 0; i < questions.length; i++) {
-    const selectedAnswer = userAnswers[i];
+    const selectedAnswer = saveUserAnswers[i];
     if (selectedAnswer === questions[i].answer) {
       score++;
     }
